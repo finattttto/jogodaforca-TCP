@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-class Receptor implements Runnable {
+public class Receptor implements Runnable {
     private Socket socket;
     private BufferedReader receber;
     private BufferedWriter enviar;
@@ -54,7 +54,7 @@ class Receptor implements Runnable {
                 System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
                 if ( index < players.size( ) - 1 ) index++;
                 else index = 0;
-//                  verificador( msg, p );
+                  verificador( msg, players.get( index ));
 
             } catch ( Exception e ) {
                 //fechaTudo( socket, receber, enviar );
@@ -67,6 +67,8 @@ class Receptor implements Runnable {
             this.socket = socket;
             this.receber = new BufferedReader( new InputStreamReader( socket.getInputStream( ) ) );
             this.enviar = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream( ) ) );
+            this.vidas = 7;
+            this.dica = false;
             this.username = receber.readLine( );
             players.add( this );
         } catch ( IOException e ) {
@@ -78,7 +80,19 @@ class Receptor implements Runnable {
     public void verificador( String frame, Receptor p ) {
         if ( frame.contains( "T | " ) ) {
             System.out.println( "Tentativa do jogador..." );
-           jogo.chute(frame, p.vidas);
+            String resultChute = jogo.chute(frame, p);
+            if (resultChute.contains("Palavra Incorreta!")){
+                players.get(players.indexOf(p)).vidas = p.getVidas() - 1;
+            }
+            //Aqui vai retornar resultChute para os jogadores, para que saibam o que aconteceu
+            try {
+                p.enviar.write( resultChute );
+                p.enviar.newLine( );
+                p.enviar.flush( );
+            } catch ( IOException e ) {
+                fechaTudo( socket, receber, enviar );
+            }
+
         } else if ( frame.contains( "P | " ) ) {
             System.out.println( "Tentativa de adivinhar a palavra..." );
         } else if ( frame.contains( "D | " ) ) {
@@ -107,4 +121,24 @@ class Receptor implements Runnable {
         }
     }
 
+
+    public String getUsername() {
+        return username;
+    }
+
+    public int getVidas() {
+        return vidas;
+    }
+
+    public void setVidas(int vidas) {
+        this.vidas = vidas;
+    }
+
+    public Boolean getDica() {
+        return dica;
+    }
+
+    public void setDica(Boolean dica) {
+        this.dica = dica;
+    }
 }
