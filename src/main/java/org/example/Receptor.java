@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.Cliente.Jogador;
+import JogoForca.JogoDaForca;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,9 +13,11 @@ class Receptor implements Runnable {
     private BufferedReader receber;
     private BufferedWriter enviar;
     private String username;
+    private int vidas;
+    private Boolean dica;
 
     public static ArrayList<Receptor> players = new ArrayList<>( );
-    public static JogoDaForca jogo = new JogoDaForca( );
+    public static JogoDaForca jogo = new JogoDaForca();
 
 
     @Override
@@ -93,11 +95,11 @@ class Receptor implements Runnable {
     public void verificador( String frame, Receptor p ) {
         if ( frame.contains( "T | " ) ) {
             System.out.println( "Tentativa do jogador..." );
-            jogo.chute( frame );
+           jogo.chute(frame, p.vidas);
         } else if ( frame.contains( "P | " ) ) {
             System.out.println( "Tentativa de adivinhar a palavra..." );
         } else if ( frame.contains( "D | " ) ) {
-            String dica = jogo.dica( );
+            String dica = jogo.dica(jogo.getPalavra());
             try {
                 p.enviar.write( dica );
                 p.enviar.newLine( );
