@@ -35,7 +35,7 @@ public class Jogador {
         Scanner scan = new Scanner( System.in );
         System.out.println( "Digite seu nome de usuário: " );
         String username = scan.nextLine( );
-        Socket socket = new Socket( "192.168.3.7", 8080 );
+        Socket socket = new Socket( "26.23.23.20", 8080 );
         Jogador jogador = new Jogador( username, socket, false, 5 );
         cadastrar( username );
         jogador.receberMsg( );
@@ -77,8 +77,10 @@ public class Jogador {
                         msgDoChat = receber.readLine( );
                         System.out.println( msgDoChat );
                         if ( msgDoChat.contains( username ) ) {
-                            System.out.println( "Ta na hora de jogar" );
+                            System.out.println( "Ta na hora de jogar "+ username );
                             enviarMsg( );
+                        } else {
+                            System.out.println( "Ta na hora do amiguinho" );
                         }
                     } catch ( IOException e ) {
                         fechaTudo( socket, receber, enviar );

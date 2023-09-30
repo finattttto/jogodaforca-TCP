@@ -18,20 +18,22 @@ class Receptor implements Runnable {
 
     @Override
     public void run( ) {
+        int index = 0;
         String msg;
         while ( socket.isConnected( ) ) {
-            if(players.size() < 1){
+            if(players.size() < 2){
                 continue;
             }
             try {
-                for ( Receptor p : players ) {
-                    p.enviar.write( "Sua vez "+p.username );
-                    p.enviar.newLine();
-                    p.enviar.flush();
-                    msg = receber.readLine( );
-                    System.out.println("Mensgem recebida do "+p.username+"  " +msg);
-//                    verificador( msg, p );
-                }
+                players.get( index ).enviar.write( "Sua vez " + players.get( index ).username );
+                players.get( index ).enviar.newLine( );
+                players.get( index ).enviar.flush( );
+                msg = players.get( index ).receber.readLine( );
+                System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
+                if ( index < players.size( ) ) index++;
+                else index = 0;
+//                  verificador( msg, p );
+
             } catch ( Exception e ) {
                 fechaTudo( socket, receber, enviar );
             }
