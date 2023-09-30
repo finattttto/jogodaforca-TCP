@@ -74,13 +74,17 @@ public class Jogador {
                 String msgDoChat;
                 while ( socket.isConnected( ) ) {
                     try {
-                        msgDoChat = receber.readLine( );
-                        System.out.println( msgDoChat );
-                        if ( msgDoChat.contains( username ) ) {
-                            System.out.println( "Ta na hora de jogar "+ username );
-                            enviarMsg( );
-                        } else {
-                            System.out.println( "Ta na hora do amiguinho" );
+                        msgDoChat = receber.readLine();
+                        if(msgDoChat == null){
+                            continue;
+                        }else {
+                            System.out.println(msgDoChat);
+                            if (msgDoChat.contains(username)) {
+                                System.out.println("Ta na hora de jogar " + username);
+                                enviarMsg();
+                            } else {
+                                System.out.println("ta na hora do amiguinho");
+                            }
                         }
                     } catch ( IOException e ) {
                         fechaTudo( socket, receber, enviar );

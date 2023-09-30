@@ -30,7 +30,7 @@ class Receptor implements Runnable {
                 players.get( index ).enviar.flush( );
                 msg = players.get( index ).receber.readLine( );
                 System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
-                if ( index < players.size( ) ) index++;
+                if ( index < players.size( ) - 1 ) index++;
                 else index = 0;
 //                  verificador( msg, p );
 
