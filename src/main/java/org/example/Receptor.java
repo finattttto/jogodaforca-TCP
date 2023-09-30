@@ -15,6 +15,7 @@ class Receptor implements Runnable {
     public static ArrayList<Receptor> players = new ArrayList<>( );
     public static JogoDaForca jogo = new JogoDaForca( );
 
+
     @Override
     public void run( ) {
         String msg;

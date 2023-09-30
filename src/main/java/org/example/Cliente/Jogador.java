@@ -28,45 +28,45 @@ public class Jogador {
         }
     }
 
+    /* PARTE DO JOGADOR
+     *  Inicia a conexao com o servidor e instancia um novo jogador
+     * */
     public static void main( String[] args ) throws IOException {
         Scanner scan = new Scanner( System.in );
         System.out.println( "Digite seu nome de usuário: " );
         String username = scan.nextLine( );
-        Socket socket = new Socket( "192.168.19.22", 8080 );
+        Socket socket = new Socket( "192.168.3.7", 8080 );
         Jogador jogador = new Jogador( username, socket, false, 5 );
-        cadastrar(username);
+        cadastrar( username );
         jogador.receberMsg( );
     }
 
-    public static void cadastrar(String username){
-        try{
-           enviar.write(username);
-           enviar.newLine();
-           enviar.flush();
-        }catch (IOException ex){
-            System.out.println("erro ao cadastrar");
+    public static void cadastrar( String username ) {
+        try {
+            enviar.write( username );
+            enviar.newLine( );
+            enviar.flush( );
+        } catch ( IOException ex ) {
+            System.out.println( "erro ao cadastrar" );
         }
 
     }
 
+    // Função pra enviar a mensagem
     public void enviarMsg( ) {
         try {
-
             Scanner scan = new Scanner( System.in );
-
-               if(taNaHoraDeJogar){
-                   System.out.println("Sua escolha" );
-                   String msg = scan.nextLine( );
-                   enviar.write( username + ": " + msg );
-                   enviar.newLine( );
-                   enviar.flush( );
-               }
-
+            System.out.println( "Sua escolha" );
+            String msg = scan.nextLine( );
+            enviar.write( username + ": " + msg );
+            enviar.newLine( );
+            enviar.flush( );
         } catch ( IOException e ) {
             fechaTudo( socket, receber, enviar );
         }
     }
 
+    // Thread que vai ficar aguardando a hora do jogador
     public void receberMsg( ) {
         new Thread( new Runnable( ) {
             @Override
@@ -75,10 +75,10 @@ public class Jogador {
                 while ( socket.isConnected( ) ) {
                     try {
                         msgDoChat = receber.readLine( );
-                        System.out.println(msgDoChat );
-                        if(msgDoChat.contains( username )){
-                            System.out.println("Ta na hora de jogar" );
-                            enviarMsg();
+                        System.out.println( msgDoChat );
+                        if ( msgDoChat.contains( username ) ) {
+                            System.out.println( "Ta na hora de jogar" );
+                            enviarMsg( );
                         }
                     } catch ( IOException e ) {
                         fechaTudo( socket, receber, enviar );
@@ -88,6 +88,7 @@ public class Jogador {
         } ).start( );
     }
 
+    // Fecha todas as conexoes
     public void fechaTudo( Socket socket, BufferedReader receber, BufferedWriter enviar ) {
         try {
             if ( socket != null ) socket.close( );

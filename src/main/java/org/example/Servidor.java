@@ -11,6 +11,7 @@ public class Servidor {
         this.socket = socket;
     }
 
+    // fica em loop conectando os jogadores
     public void iniciarSessao() throws IOException {
         while(!socket.isClosed()){
             Socket conexao = socket.accept();
@@ -28,6 +29,7 @@ public class Servidor {
         }
     }
 
+    // inicia o projeto e abre a conexao
     public static void main(String[] args) throws IOException{
         ServerSocket socket = new ServerSocket(8080);
         Servidor servidor = new Servidor(socket);
