@@ -77,7 +77,11 @@ public class Jogador {
                         msgDoChat = receber.readLine();
                         if(msgDoChat == null){
                             continue;
-                        }else {
+                        }else if(msgDoChat.contains( "ConectionVerify" )){
+                            enviar.write( "Online" );
+                            enviar.newLine( );
+                            enviar.flush( );
+                        } else {
                             System.out.println(msgDoChat);
                             if (msgDoChat.contains(username)) {
                                 System.out.println("Ta na hora de jogar " + username);

@@ -5,6 +5,8 @@ import org.example.Cliente.Jogador;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 class Receptor implements Runnable {
     private Socket socket;
@@ -25,6 +27,41 @@ class Receptor implements Runnable {
                 continue;
             }
             try {
+
+                players.get( index ).enviar.write( "ConectionVerify" );
+                players.get( index ).enviar.newLine( );
+                players.get( index ).enviar.flush( );
+
+                Timer timer = new Timer();
+                int finalIndex = index;
+                timer.schedule( new TimerTask() {
+                    @Override
+                    public void run() {
+                        // ação a ser tomada após 3 segundos sem resposta
+                        // avisa os outros jogadores que o que estava na vez se desconectou
+                        for(Receptor r: players){
+                            if(!r.username.equals(username)){
+                                try {
+                                    r.enviar.write("Jogador "+players.get( finalIndex ).username + " se desconectou.");
+                                    r.enviar.newLine();
+                                    r.enviar.flush();
+                                } catch ( IOException e ) {
+                                    throw new RuntimeException( e );
+                                }
+
+                            }
+                        }
+                        // Cancela o temporizador após a ação
+                        timer.cancel();
+
+                        // remove o jogador offline
+                        // players.remove( players.get( finalIndex ) );
+                    }
+                }, 3000); // 3 segundos
+
+                String resposta = players.get( index ).receber.readLine();
+                timer.cancel(); // Cancela o temporizador quando a resposta é recebida
+
                 players.get( index ).enviar.write( "Sua vez " + players.get( index ).username );
                 players.get( index ).enviar.newLine( );
                 players.get( index ).enviar.flush( );
