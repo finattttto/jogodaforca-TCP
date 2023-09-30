@@ -6,9 +6,9 @@ import java.util.Scanner;
 
 public class Jogador {
 
-    private BufferedReader receber;
-    private BufferedWriter enviar;
-    private String username;
+    private static BufferedReader receber;
+    private static BufferedWriter enviar;
+    private static String username;
     private Socket socket;
     private Boolean dica;
     private Integer vidas;
@@ -18,9 +18,9 @@ public class Jogador {
     public Jogador( String username, Socket socket, Boolean dica, Integer vidas ) {
         try {
             this.socket = socket;
-            this.receber = new BufferedReader( new InputStreamReader( socket.getInputStream( ) ) );
-            this.enviar = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream( ) ) );
-            this.username = username;
+            receber = new BufferedReader( new InputStreamReader( socket.getInputStream( ) ) );
+            enviar = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream( ) ) );
+            Jogador.username = username;
             this.dica = dica;
             this.vidas = vidas;
         } catch ( Exception e ) {
@@ -34,27 +34,34 @@ public class Jogador {
         String username = scan.nextLine( );
         Socket socket = new Socket( "192.168.19.22", 8080 );
         Jogador jogador = new Jogador( username, socket, false, 5 );
-
+        cadastrar(username);
         jogador.receberMsg( );
-        jogador.enviarMsg( );
+    }
+
+    public static void cadastrar(String username){
+        try{
+           enviar.write(username);
+           enviar.newLine();
+           enviar.flush();
+        }catch (IOException ex){
+            System.out.println("erro ao cadastrar");
+        }
+
     }
 
     public void enviarMsg( ) {
         try {
-            enviar.write( username );
-            enviar.newLine( );
-            enviar.flush( );
+
             Scanner scan = new Scanner( System.in );
-            while ( socket.isConnected( ) ) {
+
                if(taNaHoraDeJogar){
                    System.out.println("Sua escolha" );
                    String msg = scan.nextLine( );
                    enviar.write( username + ": " + msg );
                    enviar.newLine( );
                    enviar.flush( );
-                   taNaHoraDeJogar = false;
                }
-            }
+
         } catch ( IOException e ) {
             fechaTudo( socket, receber, enviar );
         }
@@ -71,9 +78,8 @@ public class Jogador {
                         System.out.println(msgDoChat );
                         if(msgDoChat.contains( username )){
                             System.out.println("Ta na hora de jogar" );
-                            taNaHoraDeJogar = true;
+                            enviarMsg();
                         }
-                        System.out.println( msgDoChat );
                     } catch ( IOException e ) {
                         fechaTudo( socket, receber, enviar );
                     }
