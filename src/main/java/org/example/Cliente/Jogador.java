@@ -56,7 +56,7 @@ public class Jogador {
     public void enviarMsg( ) {
         try {
             Scanner scan = new Scanner( System.in );
-            System.out.println( "Escolhe uma opção: \n" +
+            System.out.println( "\nEscolhe uma opção: \n" +
                 "1 - Chuter Letra\n" +
                 "2 - Dica\n" );
 
@@ -65,10 +65,10 @@ public class Jogador {
             switch ( scan.nextInt( ) ) {
                 case 1:
                     System.out.print("Escolha uma letra: " );
-                    msg = "T | " + scan.nextLine();
+                    msg = "T | " + scan.next();
                     break;
                 case 2:
-                    System.out.print("Solicitando dica...!" );
+                    System.out.println("Solicitando dica...!" );
                     msg = "D | ";
                     break;
                 default:
@@ -99,10 +99,12 @@ public class Jogador {
                             enviar.write( "Online" );
                             enviar.newLine( );
                             enviar.flush( );
+                        } else if ( msgDoChat.contains( "D | " ) ) {
+                            String[] dica = msgDoChat.split( "\\|" );
+                            System.out.println("A dica para a palavra é: "+dica[1]);
                         } else {
                             System.out.println(msgDoChat);
                             if (msgDoChat.contains(username)) {
-                                System.out.println("Ta na hora de jogar " + username);
                                 enviarMsg();
                             } else {
                                 System.out.println("ta na hora do amiguinho");

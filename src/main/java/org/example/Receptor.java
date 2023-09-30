@@ -4,10 +4,8 @@ import JogoForca.JogoDaForca;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 public class Receptor implements Runnable {
     private Socket socket;
@@ -27,7 +25,7 @@ public class Receptor implements Runnable {
         String msg;
         boolean jogoEmAndamento = false;
         while ( socket.isConnected( ) ) {
-            if(players.size() < 2 && !jogoEmAndamento){
+            if(players.size() < 1 && !jogoEmAndamento){
                 continue;
             }
             jogoEmAndamento = true;
@@ -54,7 +52,8 @@ public class Receptor implements Runnable {
                 System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
                 if ( index < players.size( ) - 1 ) index++;
                 else index = 0;
-                  verificador( msg, players.get( index ));
+
+                verificador( msg, players.get( index ));
 
             } catch ( Exception e ) {
                 //fechaTudo( socket, receber, enviar );
@@ -70,6 +69,8 @@ public class Receptor implements Runnable {
             this.vidas = 7;
             this.dica = false;
             this.username = receber.readLine( );
+            this.vidas = 7;
+            this.dica = false;
             players.add( this );
         } catch ( IOException e ) {
             fechaTudo( socket, receber, enviar );
@@ -96,9 +97,9 @@ public class Receptor implements Runnable {
         } else if ( frame.contains( "P | " ) ) {
             System.out.println( "Tentativa de adivinhar a palavra..." );
         } else if ( frame.contains( "D | " ) ) {
-            String dica = jogo.dica(jogo.getPalavra());
+            String dica = jogo.dica();
             try {
-                p.enviar.write( dica );
+                p.enviar.write( "D | " + dica );
                 p.enviar.newLine( );
                 p.enviar.flush( );
             } catch ( IOException e ) {

@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class JogoDaForca {
 
     private static String palavra;
+    private static String dica;
     private Sorteador sorteador = new Sorteador();
 
     private static String letrasJaUsadas = "";
@@ -16,7 +17,11 @@ public class JogoDaForca {
     private static List<String> progressoAdivinhacao = new ArrayList<>();
 
     public JogoDaForca(  ) {
-        palavra = sorteador.geraPalavra("facil");
+        String result = sorteador.geraPalavra("facil");
+        String[] partes = result.split("-");
+        palavra = partes[0];
+        System.out.println("A palavra sorteada foi: "+palavra );
+        dica = partes[1];
     }
 
     public String chute(String frame, Receptor p){
@@ -106,9 +111,9 @@ public class JogoDaForca {
         return retorno;
     }
 
-    public String dica(String palavra){
+    public String dica(){
         // envia a dica
-        return "Letra A";
+        return dica;
     }
 
 
