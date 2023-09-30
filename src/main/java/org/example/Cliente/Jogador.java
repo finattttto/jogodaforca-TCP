@@ -56,9 +56,27 @@ public class Jogador {
     public void enviarMsg( ) {
         try {
             Scanner scan = new Scanner( System.in );
-            System.out.println( "Sua escolha" );
-            String msg = scan.nextLine( );
-            enviar.write( username + ": " + msg );
+            System.out.println( "Escolhe uma opção: \n" +
+                "1 - Chuter Letra\n" +
+                "2 - Dica\n" );
+
+            String msg = "";
+
+            switch ( scan.nextInt( ) ) {
+                case 1:
+                    System.out.print("Escolha uma letra: " );
+                    msg = "T | " + scan.nextLine();
+                    break;
+                case 2:
+                    System.out.print("Solicitando dica...!" );
+                    msg = "D | ";
+                    break;
+                default:
+                    System.out.println("Opção inválida. Perdeu a vez otario" );
+                    break;
+
+            }
+            enviar.write( msg );
             enviar.newLine( );
             enviar.flush( );
         } catch ( IOException e ) {

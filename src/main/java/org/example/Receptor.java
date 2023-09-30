@@ -4,6 +4,7 @@ import JogoForca.JogoDaForca;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,45 +25,27 @@ class Receptor implements Runnable {
     public void run( ) {
         int index = 0;
         String msg;
+        boolean jogoEmAndamento = false;
         while ( socket.isConnected( ) ) {
-            if(players.size() < 2){
+            if(players.size() < 2 && !jogoEmAndamento){
                 continue;
             }
+            jogoEmAndamento = true;
             try {
 
-                players.get( index ).enviar.write( "ConectionVerify" );
-                players.get( index ).enviar.newLine( );
-                players.get( index ).enviar.flush( );
-
-                Timer timer = new Timer();
-                int finalIndex = index;
-                timer.schedule( new TimerTask() {
-                    @Override
-                    public void run() {
-                        // ação a ser tomada após 3 segundos sem resposta
-                        // avisa os outros jogadores que o que estava na vez se desconectou
-                        for(Receptor r: players){
-                            if(!r.username.equals(username)){
-                                try {
-                                    r.enviar.write("Jogador "+players.get( finalIndex ).username + " se desconectou.");
-                                    r.enviar.newLine();
-                                    r.enviar.flush();
-                                } catch ( IOException e ) {
-                                    throw new RuntimeException( e );
-                                }
-
-                            }
-                        }
-                        // Cancela o temporizador após a ação
-                        timer.cancel();
-
-                        // remove o jogador offline
-                        // players.remove( players.get( finalIndex ) );
-                    }
-                }, 3000); // 3 segundos
-
-                String resposta = players.get( index ).receber.readLine();
-                timer.cancel(); // Cancela o temporizador quando a resposta é recebida
+//               try{
+//                   players.get( index ).socket.setSoTimeout( 3000 );
+//                   players.get( index ).enviar.write( "ConectionVerify" );
+//                   players.get( index ).enviar.newLine( );
+//                   players.get( index ).enviar.flush( );
+//                   String resposta = players.get( index ).receber.readLine();
+//                   System.out.println( players.get( index ).username + resposta );
+//               } catch ( SocketTimeoutException ex ){
+//                   System.out.println(players.get( index ).username + " desconectou" );
+//                   players.remove( index );
+//                   index--;
+//                   continue;
+//               }
 
                 players.get( index ).enviar.write( "Sua vez " + players.get( index ).username );
                 players.get( index ).enviar.newLine( );
@@ -74,7 +57,7 @@ class Receptor implements Runnable {
 //                  verificador( msg, p );
 
             } catch ( Exception e ) {
-                fechaTudo( socket, receber, enviar );
+                //fechaTudo( socket, receber, enviar );
             }
         }
     }
