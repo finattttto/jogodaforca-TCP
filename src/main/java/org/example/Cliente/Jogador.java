@@ -35,7 +35,7 @@ public class Jogador {
         Scanner scan = new Scanner( System.in );
         System.out.println( "Digite seu nome de usuário: " );
         String username = scan.nextLine( );
-        Socket socket = new Socket( "26.23.23.20", 8080 );
+        Socket socket = new Socket( "192.168.19.22", 8080 );
         Jogador jogador = new Jogador( username, socket, false, 5 );
         cadastrar( username );
         jogador.receberMsg( );
@@ -127,5 +127,74 @@ public class Jogador {
         } catch ( IOException e ) {
             e.printStackTrace( );
         }
+    }
+
+    private String desenharPessoaNaForca( int tentativa, String username) {
+        String desenhoForca = "";
+
+        //Passa por cada linha do desenho e desenha as partes necessarias do personagem a partir das tentativas
+
+        System.out.println( "\n" );
+        System.out.println( " _______" );
+        System.out.println( " |     |" );
+
+        desenhoForca += "\n" ;
+        desenhoForca +=  " _______" ;
+        desenhoForca +=  " |     |" ;
+
+        if ( tentativa <= 6 ) {
+            System.out.println( " |     O" );
+            desenhoForca +=  "\n |     O" ;
+        }
+        if ( tentativa == 6 ) {
+            System.out.println( " |      " );
+            desenhoForca +=  "\n |      " ;
+        }
+        if ( tentativa == 5 ) {
+            System.out.println( " |     |" );
+            System.out.println( " |     |" );
+
+            desenhoForca +=  "\n |     |" ;
+            desenhoForca +=  "\n |     |" ;
+        }
+        if ( tentativa == 4 ) {
+            System.out.println( " |    /|" );
+            System.out.println( " |     |" );
+
+            desenhoForca += "\n |    /|" ;
+            desenhoForca += "\n |     |" ;
+        }
+        if ( tentativa <= 3 ) {
+            System.out.println( " |    /|\\" );
+            System.out.println( " |     |" );
+
+            desenhoForca += "\n |    /|\\" ;
+            desenhoForca +=  "\n |     |" ;
+        }
+        if ( tentativa == 2 ) {
+            System.out.println( " |    / " );
+
+            desenhoForca += "\n |    / " ;
+        }
+        if ( tentativa <= 1 ) {
+            System.out.println( " |    / \\" );
+
+            desenhoForca +=  "\n |    / \\" ;
+        }
+
+        System.out.println( " |      " );
+        System.out.println( "_|______________" );
+
+        desenhoForca +=  "\n |      " ;
+        desenhoForca +=  "\n_|______________" ;
+
+        if ( tentativa == 0 ) {
+            System.out.println(username + " MORREU! " );
+
+            desenhoForca +=  "\n" + username + " MORREU! " ;
+        }
+
+        return desenhoForca;
+
     }
 }

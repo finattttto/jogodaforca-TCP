@@ -25,7 +25,7 @@ public class Receptor implements Runnable {
         String msg;
         boolean jogoEmAndamento = false;
         while ( socket.isConnected( ) ) {
-            if(players.size() < 1 && !jogoEmAndamento){
+            if(players.size() < 2 && !jogoEmAndamento){
                 continue;
             }
             jogoEmAndamento = true;
@@ -50,13 +50,14 @@ public class Receptor implements Runnable {
                 players.get( index ).enviar.flush( );
                 msg = players.get( index ).receber.readLine( );
                 System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
-                if ( index < players.size( ) - 1 ) index++;
-                else index = 0;
 
                 verificador( msg, players.get( index ));
 
+                if ( index < players.size( ) - 1 ) index++;
+                else index = 0;
+
             } catch ( Exception e ) {
-                //fechaTudo( socket, receber, enviar );
+                fechaTudo( socket, receber, enviar );
             }
         }
     }
@@ -81,13 +82,18 @@ public class Receptor implements Runnable {
     public void verificador( String frame, Receptor p ) {
         if ( frame.contains( "T | " ) ) {
             System.out.println( "Tentativa do jogador..." );
-            String resultChute = jogo.chute(frame, p);
-            if (resultChute.contains("Palavra Incorreta!")){
+            String resultChute = jogo.chute(frame);
+            String retorno;
+            if (resultChute.contains("Palavra Incorreta!") || resultChute.contains( "Você errou" )){
                 players.get(players.indexOf(p)).vidas = p.getVidas() - 1;
+
+                retorno = "Errrrouuuuu";
+            }else {
+                retorno = "Letra correta";
             }
             //Aqui vai retornar resultChute para os jogadores, para que saibam o que aconteceu
             try {
-                p.enviar.write( resultChute );
+                p.enviar.write( retorno );
                 p.enviar.newLine( );
                 p.enviar.flush( );
             } catch ( IOException e ) {
@@ -110,6 +116,10 @@ public class Receptor implements Runnable {
         } else {
             System.out.println( "Nenhuma das opcoes..." );
         }
+    }
+
+    public void validaRetorno(String retorno){
+
     }
 
     public void fechaTudo( Socket socket, BufferedReader receber, BufferedWriter enviar ) {
