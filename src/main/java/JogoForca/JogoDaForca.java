@@ -37,13 +37,13 @@ public class JogoDaForca {
 
             // Caso a letra ja tenha sido chutada, retorna a mensagem e permite ele jogar novamente;
             if ( letrasJaUsadas.contains( letra ) ) {
-                retorno = "A letra " + letra + " já foi informada.";
+                return "A letra " + letra + " já foi informada.";
             }
 
             letrasJaUsadas += letra + " ";
 
             // Verifica a existencia da letra dentro da palavra sorteada:
-            if ( palavra.contains( letra ) && !retorno.equals( "" ) ) { //caso a palavra contenha a letra, passa para a proxima parte
+            if ( palavra.contains( letra ) ) { //caso a palavra contenha a letra, passa para a proxima parte
                 for ( int i = 0; i < palavra.length( ); i++ ) {
                     //Percorre cada letra da palavra com substrings caso a letra esteja na palavra, Altera o mesmo index no progresso de adivinhação Substituindo-o pela letra
                     if ( palavra.substring( i, i + 1 ).equals( letra ) ) {
@@ -53,20 +53,21 @@ public class JogoDaForca {
                 //O Progresso de adivinhacao contem o caracter _ em letras que nao foram adivinhadas caso o progresso de adivinhacao nao contenha nenhum _, mostra a vitoria do jogador
                 if ( !progressoAdivinhacao.toString( ).contains( "_" ) ) {
                     retorno = " VENCEU!!! A palavra era: " + palavra;
+                }else{
+                    retorno = " Você acertou uma letra! ";
                 }
-                System.out.println( "Você acertou uma letra!!\n" );
-            } else if ( !retorno.equals( "" ) ) {
+            } else {
 
                 //errou a letra
                 // DEPOIS A GENTE VALIDA A MORTE DA BEZERRA
 
-                retorno = "Você errou :(";
+                retorno = "Letra Incorreta!";
             }
 
             //Comparando para palavra completa (letra = palavra adivinhada pelo jogador)
         } else if ( letra.length( ) > 1 && letra.length( ) == palavra.length( ) ) {
             if ( palavra.equals( letra ) ) {
-                retorno =  " VENCEU!!! A palavra era: " + palavra;
+                retorno =  " VENCEU!!! A palavra era: :-" + palavra;
             } else {
                 retorno = "Palavra Incorreta!";
             }
@@ -80,8 +81,8 @@ public class JogoDaForca {
             System.out.print( i + " " );
         }
 
-
-        return retorno + " | " + progressoAdivinhacao + " | " + letrasJaUsadas;
+        // o retorno vai apenas para o jogador da vez, o progresso e as letras usadas devem ir pra todos os jogadores
+        return "R | " + retorno + " | " + progressoAdivinhacao + " | " + letrasJaUsadas;
     }
 
     public String dica( ) {
@@ -116,9 +117,7 @@ public class JogoDaForca {
             for ( Object i : progressoAdivinhacao ) {
                 System.out.print( i + " " );
             }
-
-            // Chama a função que imprime a forca
-            desenharPessoaNaForca( maxTentativas, "" );
+            
 
             // Mostra quantas vidas o jogador ainda tem
             System.out.println( "Você tem mais " + maxTentativas + " vidas! " );
@@ -129,74 +128,7 @@ public class JogoDaForca {
         }
     }
 
-    private static String desenharPessoaNaForca( int tentativa, String username ) {
-        String desenhoForca = "";
-
-        //Passa por cada linha do desenho e desenha as partes necessarias do personagem a partir das tentativas
-
-        System.out.println( "\n" );
-        System.out.println( " _______" );
-        System.out.println( " |     |" );
-
-        desenhoForca += "\n";
-        desenhoForca += " _______";
-        desenhoForca += " |     |";
-
-        if ( tentativa <= 6 ) {
-            System.out.println( " |     O" );
-            desenhoForca += "\n |     O";
-        }
-        if ( tentativa == 6 ) {
-            System.out.println( " |      " );
-            desenhoForca += "\n |      ";
-        }
-        if ( tentativa == 5 ) {
-            System.out.println( " |     |" );
-            System.out.println( " |     |" );
-
-            desenhoForca += "\n |     |";
-            desenhoForca += "\n |     |";
-        }
-        if ( tentativa == 4 ) {
-            System.out.println( " |    /|" );
-            System.out.println( " |     |" );
-
-            desenhoForca += "\n |    /|";
-            desenhoForca += "\n |     |";
-        }
-        if ( tentativa <= 3 ) {
-            System.out.println( " |    /|\\" );
-            System.out.println( " |     |" );
-
-            desenhoForca += "\n |    /|\\";
-            desenhoForca += "\n |     |";
-        }
-        if ( tentativa == 2 ) {
-            System.out.println( " |    / " );
-
-            desenhoForca += "\n |    / ";
-        }
-        if ( tentativa <= 1 ) {
-            System.out.println( " |    / \\" );
-
-            desenhoForca += "\n |    / \\";
-        }
-
-        System.out.println( " |      " );
-        System.out.println( "_|______________" );
-
-        desenhoForca += "\n |      ";
-        desenhoForca += "\n_|______________";
-
-        if ( tentativa == 0 ) {
-            System.out.println( username + " MORREU! " );
-
-            desenhoForca += "\n" + username + " MORREU! ";
-        }
-
-        return desenhoForca;
-
-    }
+   
 
     public String getPalavra( ) {
         return palavra;

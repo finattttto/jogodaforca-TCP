@@ -44,7 +44,7 @@ public class Receptor implements Runnable {
 //                   index--;
 //                   continue;
 //               }
-
+                
                 players.get( index ).enviar.write( "Sua vez " + players.get( index ).username );
                 players.get( index ).enviar.newLine( );
                 players.get( index ).enviar.flush( );
@@ -77,25 +77,66 @@ public class Receptor implements Runnable {
             fechaTudo( socket, receber, enviar );
         }
     }
+    
+    public String ajustaRetorno(String retornoBruto, String username){
+        String[] partes = retornoBruto.split("\\|");
+        String retorno = partes[1].trim();
+        String progressoAdivinhacao = partes[2].trim();
+        String letrasJaUsadas = partes[3].trim();
+        
+        String retornoFormatado = "";
+        if(retorno.contains( "Você acertou uma letra" )){
+            retornoFormatado = username + " acertou uma letra! | ";
+        }else if( retorno.contains( "Letra Incorreta " ) || retorno.contains( "Palavra Incorreta " ) ){
+            retornoFormatado = username + " errou a tentativa! | ";
+        } else if ( retorno.contains( "VENCEU!!!" ) ) {
+            String[] separaPalavra = retorno.split( ":-" );
+            String palavra = separaPalavra[1];
+            retornoFormatado = username + " venceu a rodada! A palavra era: " + palavra;
+        }
+        
+        return "RO | " + retornoFormatado + " | " + progressoAdivinhacao + " | " + letrasJaUsadas;
+    }
 
 
     public void verificador( String frame, Receptor p ) {
         if ( frame.contains( "T | " ) ) {
             System.out.println( "Tentativa do jogador..." );
             String resultChute = jogo.chute(frame);
-            String retorno;
-            if (resultChute.contains("Palavra Incorreta!") || resultChute.contains( "Você errou" )){
+            
+            // Caso o jogador tenha errado a letra ou o chute
+            if (resultChute.contains("Palavra Incorreta!") || resultChute.contains( "Letra Incorreta" )){
                 players.get(players.indexOf(p)).vidas = p.getVidas() - 1;
-
-                retorno = "Errrrouuuuu";
-            }else {
-                retorno = "Letra correta";
             }
+            
+            // Aqui ele verifica se a letra que o usuario informou é repetida ou se a palavra é do tamanho errado
+            // nesse caso ele retorna para o jogador e permite tentar mais um chute
+            if( resultChute.contains( "já foi informada." ) || resultChute.contains( "com o tamanho correto!" )){
+                try {
+                    p.enviar.write( resultChute );
+                    p.enviar.newLine( );
+                    p.enviar.flush( );
+                    return;
+                } catch ( Exception e ){
+                    fechaTudo( socket, receber, enviar );
+                }
+            }
+            
+            String resultChuteMassas = ajustaRetorno( resultChute, p.username );
+            
             //Aqui vai retornar resultChute para os jogadores, para que saibam o que aconteceu
             try {
-                p.enviar.write( retorno );
-                p.enviar.newLine( );
-                p.enviar.flush( );
+                for(Receptor player : players){
+                    if ( player.equals( p ) ){
+                        player.enviar.write( resultChute + " | Você ainda tem "+p.getVidas()+" vidas!" );
+                    }else{
+                        player.enviar.write( resultChuteMassas );
+                    }
+                    player.enviar.newLine( );
+                    player.enviar.flush( );
+                    
+                    
+                }
             } catch ( IOException e ) {
                 fechaTudo( socket, receber, enviar );
             }
@@ -111,15 +152,9 @@ public class Receptor implements Runnable {
             } catch ( IOException e ) {
                 fechaTudo( socket, receber, enviar );
             }
-
-            System.out.println( "Receptor solicitando a dica..." );
         } else {
             System.out.println( "Nenhuma das opcoes..." );
         }
-    }
-
-    public void validaRetorno(String retorno){
-
     }
 
     public void fechaTudo( Socket socket, BufferedReader receber, BufferedWriter enviar ) {

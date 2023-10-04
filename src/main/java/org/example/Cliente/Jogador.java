@@ -3,6 +3,8 @@ package org.example.Cliente;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Jogador {
 
@@ -102,7 +104,37 @@ public class Jogador {
                         } else if ( msgDoChat.contains( "D | " ) ) {
                             String[] dica = msgDoChat.split( "\\|" );
                             System.out.println("A dica para a palavra é: "+dica[1]);
-                        } else {
+                        } else if (msgDoChat.contains( "R | " )) {
+                            // Aqui é o retorno quando tentar um chute
+                            String[] partes = msgDoChat.split("\\|");
+                            String retorno = partes[1].trim();
+                            String progressoAdivinhacao = partes[2].trim();
+                            String letrasJaUsadas = partes[3].trim();
+                            String vidas = partes[4].trim();
+                            
+                            System.out.println(retorno);
+                            
+                            System.out.println( "\nProgresso na adivinhação: " );
+//                            for ( Object i : progressoAdivinhacao ) {
+//                                System.out.print( i + " " );
+//                            }
+                            System.out.println(progressoAdivinhacao);
+                            
+                            System.out.println( "------------ Letras já usadas ---------------" );
+                            System.out.println( letrasJaUsadas );
+                            System.out.println( "---------------------------------------------" );
+                            
+                            System.out.println(vidas);
+                            
+                            desenharPessoaNaForca( Integer.parseInt( extrairNumero(vidas) ), username );
+                            
+                        } else if (msgDoChat.contains( "RO | " )) {
+                            // Aqui é o retorno tenta um chute, porem pros outros jogadores saber oq aconteceu
+                            String[] partes = msgDoChat.split( "\\|" );
+                            String retorno = partes[1].trim();
+                            
+                            System.out.println( retorno );
+                        }else {
                             System.out.println(msgDoChat);
                             if (msgDoChat.contains(username)) {
                                 enviarMsg();
@@ -128,8 +160,19 @@ public class Jogador {
             e.printStackTrace( );
         }
     }
+    
+    private String extrairNumero(String texto) {
+        Pattern pattern = Pattern.compile("\\d+"); // Procura uma sequência de dígitos
+        Matcher matcher = pattern.matcher(texto);
+        
+        if (matcher.find()) {
+            return matcher.group(); // Retorna o primeiro número encontrado na string
+        } else {
+            return "0"; // Retorna 0 se nenhum número for encontrado
+        }
+    }
 
-    private String desenharPessoaNaForca( int tentativa, String username) {
+    private String desenharPessoaNaForca( int vidas, String username) {
         String desenhoForca = "";
 
         //Passa por cada linha do desenho e desenha as partes necessarias do personagem a partir das tentativas
@@ -142,41 +185,41 @@ public class Jogador {
         desenhoForca +=  " _______" ;
         desenhoForca +=  " |     |" ;
 
-        if ( tentativa <= 6 ) {
+        if ( vidas <= 6 ) {
             System.out.println( " |     O" );
             desenhoForca +=  "\n |     O" ;
         }
-        if ( tentativa == 6 ) {
+        if ( vidas == 6 ) {
             System.out.println( " |      " );
             desenhoForca +=  "\n |      " ;
         }
-        if ( tentativa == 5 ) {
+        if ( vidas == 5 ) {
             System.out.println( " |     |" );
             System.out.println( " |     |" );
 
             desenhoForca +=  "\n |     |" ;
             desenhoForca +=  "\n |     |" ;
         }
-        if ( tentativa == 4 ) {
+        if ( vidas == 4 ) {
             System.out.println( " |    /|" );
             System.out.println( " |     |" );
 
             desenhoForca += "\n |    /|" ;
             desenhoForca += "\n |     |" ;
         }
-        if ( tentativa <= 3 ) {
+        if ( vidas <= 3 ) {
             System.out.println( " |    /|\\" );
             System.out.println( " |     |" );
 
             desenhoForca += "\n |    /|\\" ;
             desenhoForca +=  "\n |     |" ;
         }
-        if ( tentativa == 2 ) {
+        if ( vidas == 2 ) {
             System.out.println( " |    / " );
 
             desenhoForca += "\n |    / " ;
         }
-        if ( tentativa <= 1 ) {
+        if ( vidas <= 1 ) {
             System.out.println( " |    / \\" );
 
             desenhoForca +=  "\n |    / \\" ;
@@ -188,7 +231,7 @@ public class Jogador {
         desenhoForca +=  "\n |      " ;
         desenhoForca +=  "\n_|______________" ;
 
-        if ( tentativa == 0 ) {
+        if ( vidas == 0 ) {
             System.out.println(username + " MORREU! " );
 
             desenhoForca +=  "\n" + username + " MORREU! " ;
