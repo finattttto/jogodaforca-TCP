@@ -22,6 +22,11 @@ public class JogoDaForca {
         palavra = partes[ 0 ];
         System.out.println( "A palavra sorteada foi: " + palavra );
         dica = partes[ 1 ];
+
+        //Adicionando a palavra sorteada a uma lista e completando a lista de adivinhação com ""
+        for ( int i = 0; i < palavra.length( ); i++ ) {
+            progressoAdivinhacao.add( "_" );
+        }
     }
 
     public String chute( String frame ) {
@@ -33,6 +38,9 @@ public class JogoDaForca {
         //string que receberá tudo que será enviado aos players após o chute
         String retorno = "";
 
+
+
+        letra = letra.replace( " ", "" );
         if ( letra.length( ) == 1 ) {
 
             // Caso a letra ja tenha sido chutada, retorna a mensagem e permite ele jogar novamente;
@@ -57,10 +65,6 @@ public class JogoDaForca {
                     retorno = " Você acertou uma letra! ";
                 }
             } else {
-
-                //errou a letra
-                // DEPOIS A GENTE VALIDA A MORTE DA BEZERRA
-
                 retorno = "Letra Incorreta!";
             }
 
@@ -75,14 +79,16 @@ public class JogoDaForca {
             retorno = "Digite uma letra, ou uma palavra com o tamanho correto!" ;
         }
 
+        StringBuilder palavraComLetrasAcertadas = new StringBuilder( );
         // Mostra as letras acertadas
         System.out.println( "Progresso na adivinhação: " );
         for ( Object i : progressoAdivinhacao ) {
             System.out.print( i + " " );
+            palavraComLetrasAcertadas.append( i ).append( " " );
         }
 
         // o retorno vai apenas para o jogador da vez, o progresso e as letras usadas devem ir pra todos os jogadores
-        return "R | " + retorno + " | " + progressoAdivinhacao + " | " + letrasJaUsadas;
+        return "R | " + retorno + " | " + palavraComLetrasAcertadas.toString() + " | " + letrasJaUsadas;
     }
 
     public String dica( ) {
@@ -90,45 +96,6 @@ public class JogoDaForca {
         return dica;
     }
 
-
-    private static void playGame( String palavra, List palavraQuebrada, List progressoAdivinhacao, int tentativasJogador ) {
-
-        int maxTentativas = 7;
-
-
-        // Imprimindo a quantidade de campos da palavra sorteada
-        for ( Object i : progressoAdivinhacao ) {
-            System.out.print( i + " " );
-        }
-
-        Scanner sc = new Scanner( System.in );
-
-        //loop da adivinhação do jogador
-        while ( maxTentativas > 0 ) {
-
-            System.out.print( "\nEscolha uma letra (ou tente adivinhar a palavra): " );
-            String letra = sc.nextLine( );
-
-            //Comparando para apenas uma letra
-
-
-            //Imprime como está a palavra
-            System.out.println( "Progresso na adivinhação: " );
-            for ( Object i : progressoAdivinhacao ) {
-                System.out.print( i + " " );
-            }
-            
-
-            // Mostra quantas vidas o jogador ainda tem
-            System.out.println( "Você tem mais " + maxTentativas + " vidas! " );
-
-            System.out.println( "------------ Letras já usadas ---------------" );
-            System.out.println( letrasJaUsadas );
-            System.out.println( "---------------------------------------------" );
-        }
-    }
-
-   
 
     public String getPalavra( ) {
         return palavra;

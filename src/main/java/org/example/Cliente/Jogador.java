@@ -103,7 +103,11 @@ public class Jogador {
                             enviar.flush( );
                         } else if ( msgDoChat.contains( "D | " ) ) {
                             String[] dica = msgDoChat.split( "\\|" );
-                            System.out.println("A dica para a palavra é: "+dica[1]);
+                            if ( dica[1].contains( "Você ja" ) ){
+                                System.out.println(dica[1]);
+                            }else {
+                                System.out.println("A dica para a palavra é: "+dica[1]);
+                            }
                         } else if (msgDoChat.contains( "R | " )) {
                             // Aqui é o retorno quando tentar um chute
                             String[] partes = msgDoChat.split("\\|");
@@ -132,14 +136,21 @@ public class Jogador {
                             // Aqui é o retorno tenta um chute, porem pros outros jogadores saber oq aconteceu
                             String[] partes = msgDoChat.split( "\\|" );
                             String retorno = partes[1].trim();
+                            String progressoAdivinhacao = partes[2].trim();
+                            String letrasJaUsadas = partes[3].trim();
                             
                             System.out.println( retorno );
+
+                            System.out.println(progressoAdivinhacao);
+
+                            System.out.println( "------------ Letras já usadas ---------------" );
+                            System.out.println( letrasJaUsadas );
+                            System.out.println( "---------------------------------------------" );
+
                         }else {
                             System.out.println(msgDoChat);
                             if (msgDoChat.contains(username)) {
                                 enviarMsg();
-                            } else {
-                                System.out.println("ta na hora do amiguinho");
                             }
                         }
                     } catch ( IOException e ) {
@@ -172,8 +183,7 @@ public class Jogador {
         }
     }
 
-    private String desenharPessoaNaForca( int vidas, String username) {
-        String desenhoForca = "";
+    private void desenharPessoaNaForca( int vidas, String username) {
 
         //Passa por cada linha do desenho e desenha as partes necessarias do personagem a partir das tentativas
 
@@ -181,63 +191,45 @@ public class Jogador {
         System.out.println( " _______" );
         System.out.println( " |     |" );
 
-        desenhoForca += "\n" ;
-        desenhoForca +=  " _______" ;
-        desenhoForca +=  " |     |" ;
 
         if ( vidas <= 6 ) {
             System.out.println( " |     O" );
-            desenhoForca +=  "\n |     O" ;
         }
         if ( vidas == 6 ) {
             System.out.println( " |      " );
-            desenhoForca +=  "\n |      " ;
         }
         if ( vidas == 5 ) {
             System.out.println( " |     |" );
             System.out.println( " |     |" );
 
-            desenhoForca +=  "\n |     |" ;
-            desenhoForca +=  "\n |     |" ;
         }
         if ( vidas == 4 ) {
             System.out.println( " |    /|" );
             System.out.println( " |     |" );
 
-            desenhoForca += "\n |    /|" ;
-            desenhoForca += "\n |     |" ;
         }
         if ( vidas <= 3 ) {
             System.out.println( " |    /|\\" );
             System.out.println( " |     |" );
 
-            desenhoForca += "\n |    /|\\" ;
-            desenhoForca +=  "\n |     |" ;
         }
         if ( vidas == 2 ) {
             System.out.println( " |    / " );
 
-            desenhoForca += "\n |    / " ;
         }
         if ( vidas <= 1 ) {
             System.out.println( " |    / \\" );
 
-            desenhoForca +=  "\n |    / \\" ;
         }
 
         System.out.println( " |      " );
         System.out.println( "_|______________" );
 
-        desenhoForca +=  "\n |      " ;
-        desenhoForca +=  "\n_|______________" ;
 
         if ( vidas == 0 ) {
             System.out.println(username + " MORREU! " );
 
-            desenhoForca +=  "\n" + username + " MORREU! " ;
         }
-
-        return desenhoForca;
 
     }
 }

@@ -18,6 +18,8 @@ public class Receptor implements Runnable {
     public static ArrayList<Receptor> players = new ArrayList<>( );
     public static JogoDaForca jogo = new JogoDaForca();
 
+    private static Boolean jogaDnv = false;
+
 
     @Override
     public void run( ) {
@@ -53,6 +55,13 @@ public class Receptor implements Runnable {
 
                 verificador( msg, players.get( index ));
 
+                // Aqui verifica se o jogador pode jogar dnv, no caso de ter jogado uma letra repetida ou ter solicitado uma segunda vez a dica
+                if(jogaDnv){
+                    jogaDnv = false;
+                    continue;
+                }
+
+                // faz o controle de quem é a vez de jogar
                 if ( index < players.size( ) - 1 ) index++;
                 else index = 0;
 
@@ -116,26 +125,28 @@ public class Receptor implements Runnable {
                     p.enviar.write( resultChute );
                     p.enviar.newLine( );
                     p.enviar.flush( );
+                    jogaDnv = true;
                     return;
                 } catch ( Exception e ){
                     fechaTudo( socket, receber, enviar );
                 }
             }
-            
+
+            // Formata a resposta para os outros jogadores, fora aquele da vez
             String resultChuteMassas = ajustaRetorno( resultChute, p.username );
             
             //Aqui vai retornar resultChute para os jogadores, para que saibam o que aconteceu
             try {
                 for(Receptor player : players){
                     if ( player.equals( p ) ){
+                        // Envia o retorno para o jogador da vez, junto com sua quantidade de vidas
                         player.enviar.write( resultChute + " | Você ainda tem "+p.getVidas()+" vidas!" );
                     }else{
+                        // Envia o retorno para os outros jogadores
                         player.enviar.write( resultChuteMassas );
                     }
                     player.enviar.newLine( );
                     player.enviar.flush( );
-                    
-                    
                 }
             } catch ( IOException e ) {
                 fechaTudo( socket, receber, enviar );
@@ -144,11 +155,20 @@ public class Receptor implements Runnable {
         } else if ( frame.contains( "P | " ) ) {
             System.out.println( "Tentativa de adivinhar a palavra..." );
         } else if ( frame.contains( "D | " ) ) {
-            String dica = jogo.dica();
+            // D de dica
             try {
-                p.enviar.write( "D | " + dica );
+                // verifica se o jogador ja solicitou a dica
+                if(p.dica){
+                    p.enviar.write( "D | Você ja recebeu a sua dica!"  );
+                }else {
+                    // envia a dica e tira uma vida
+                    p.dica = true;
+                    p.vidas--;
+                    p.enviar.write( "D | " + jogo.dica() );
+                }
                 p.enviar.newLine( );
                 p.enviar.flush( );
+                jogaDnv = true; // permite jogar dnv
             } catch ( IOException e ) {
                 fechaTudo( socket, receber, enviar );
             }
