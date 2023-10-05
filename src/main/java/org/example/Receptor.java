@@ -6,29 +6,34 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
-
 public class Receptor implements Runnable {
+
     private Socket socket;
     private BufferedReader receber;
     private BufferedWriter enviar;
     private String username;
     private int vidas;
     private Boolean dica;
+    private Boolean pronto;
 
-    public static ArrayList<Receptor> players = new ArrayList<>( );
+    public static ArrayList<Receptor> players = new ArrayList<>();
     public static JogoDaForca jogo = new JogoDaForca();
 
     private static Boolean jogaDnv = false;
 
-
     @Override
-    public void run( ) {
+    public void run() {
         int index = 0;
         String msg;
         boolean jogoEmAndamento = false;
-        while ( socket.isConnected( ) ) {
-            if(players.size() < 2 && !jogoEmAndamento){
-                continue;
+        while (socket.isConnected()) {
+            for (Receptor j : players) {
+                //Testa se os players Estao prontos, caso algum não esteja, repete o teste 
+                if (!j.pronto) {
+                    break;
+                } else {
+                    continue;
+                }
             }
             jogoEmAndamento = true;
             try {
@@ -46,147 +51,163 @@ public class Receptor implements Runnable {
 //                   index--;
 //                   continue;
 //               }
-                
-                players.get( index ).enviar.write( "Sua vez " + players.get( index ).username );
-                players.get( index ).enviar.newLine( );
-                players.get( index ).enviar.flush( );
-                msg = players.get( index ).receber.readLine( );
-                System.out.println( "Mensagem recebida do " + players.get( index ).username + "  " + msg );
+                players.get(index).enviar.write("Sua vez " + players.get(index).username);
+                players.get(index).enviar.newLine();
+                players.get(index).enviar.flush();
+                msg = players.get(index).receber.readLine();
+                System.out.println("Mensagem recebida do " + players.get(index).username + "  " + msg);
 
-                verificador( msg, players.get( index ));
+                verificador(msg, players.get(index));
 
                 // Aqui verifica se o jogador pode jogar dnv, no caso de ter jogado uma letra repetida ou ter solicitado uma segunda vez a dica
-                if(jogaDnv){
+                if (jogaDnv) {
                     jogaDnv = false;
                     continue;
                 }
 
                 // faz o controle de quem é a vez de jogar
-                if ( index < players.size( ) - 1 ) index++;
-                else index = 0;
+                if (index < players.size() - 1) {
+                    index++;
+                } else {
+                    index = 0;
+                }
 
-            } catch ( Exception e ) {
-                fechaTudo( socket, receber, enviar );
+            } catch (Exception e) {
+                fechaTudo(socket, receber, enviar);
             }
         }
     }
 
-    public Receptor( Socket socket ) {
+    public Receptor(Socket socket) {
         try {
             this.socket = socket;
-            this.receber = new BufferedReader( new InputStreamReader( socket.getInputStream( ) ) );
-            this.enviar = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream( ) ) );
+            this.receber = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.enviar = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.vidas = 7;
             this.dica = false;
-            this.username = receber.readLine( );
+            this.username = receber.readLine();
             this.vidas = 7;
             this.dica = false;
-            players.add( this );
-        } catch ( IOException e ) {
-            fechaTudo( socket, receber, enviar );
+            players.add(this);
+        } catch (IOException e) {
+            fechaTudo(socket, receber, enviar);
         }
     }
-    
-    public String ajustaRetorno(String retornoBruto, String username){
+
+    public String ajustaRetorno(String retornoBruto, String username) {
         String[] partes = retornoBruto.split("\\|");
         String retorno = partes[1].trim();
         String progressoAdivinhacao = partes[2].trim();
         String letrasJaUsadas = partes[3].trim();
-        
+
         String retornoFormatado = "";
-        if(retorno.contains( "Você acertou uma letra" )){
+        if (retorno.contains("Você acertou uma letra")) {
             retornoFormatado = username + " acertou uma letra! | ";
-        }else if( retorno.contains( "Letra Incorreta " ) || retorno.contains( "Palavra Incorreta " ) ){
+        } else if (retorno.contains("Letra Incorreta ") || retorno.contains("Palavra Incorreta ")) {
             retornoFormatado = username + " errou a tentativa! | ";
-        } else if ( retorno.contains( "VENCEU!!!" ) ) {
-            String[] separaPalavra = retorno.split( ":-" );
+        } else if (retorno.contains("VENCEU!!!")) {
+            String[] separaPalavra = retorno.split(":-");
             String palavra = separaPalavra[1];
             retornoFormatado = username + " venceu a rodada! A palavra era: " + palavra;
         }
-        
+
         return "RO | " + retornoFormatado + " | " + progressoAdivinhacao + " | " + letrasJaUsadas;
     }
 
-
-    public void verificador( String frame, Receptor p ) {
-        if ( frame.contains( "T | " ) ) {
-            System.out.println( "Tentativa do jogador..." );
+    public void verificador(String frame, Receptor p) {
+        if (frame.contains("T | ")) {
+            System.out.println("Tentativa do jogador...");
             String resultChute = jogo.chute(frame);
-            
+
             // Caso o jogador tenha errado a letra ou o chute
-            if (resultChute.contains("Palavra Incorreta!") || resultChute.contains( "Letra Incorreta" )){
+            if (resultChute.contains("Palavra Incorreta!") || resultChute.contains("Letra Incorreta")) {
                 players.get(players.indexOf(p)).vidas = p.getVidas() - 1;
             }
-            
+
             // Aqui ele verifica se a letra que o usuario informou é repetida ou se a palavra é do tamanho errado
             // nesse caso ele retorna para o jogador e permite tentar mais um chute
-            if( resultChute.contains( "já foi informada." ) || resultChute.contains( "com o tamanho correto!" )){
+            if (resultChute.contains("já foi informada.") || resultChute.contains("com o tamanho correto!")) {
                 try {
-                    p.enviar.write( resultChute );
-                    p.enviar.newLine( );
-                    p.enviar.flush( );
+                    p.enviar.write(resultChute);
+                    p.enviar.newLine();
+                    p.enviar.flush();
                     jogaDnv = true;
                     return;
-                } catch ( Exception e ){
-                    fechaTudo( socket, receber, enviar );
+                } catch (Exception e) {
+                    fechaTudo(socket, receber, enviar);
                 }
             }
 
             // Formata a resposta para os outros jogadores, fora aquele da vez
-            String resultChuteMassas = ajustaRetorno( resultChute, p.username );
-            
+            String resultChuteMassas = ajustaRetorno(resultChute, p.username);
+
             //Aqui vai retornar resultChute para os jogadores, para que saibam o que aconteceu
             try {
-                for(Receptor player : players){
-                    if ( player.equals( p ) ){
+                for (Receptor player : players) {
+                    if (player.equals(p)) {
                         // Envia o retorno para o jogador da vez, junto com sua quantidade de vidas
-                        player.enviar.write( resultChute + " | Você ainda tem "+p.getVidas()+" vidas!" );
-                    }else{
+                        player.enviar.write(resultChute + " | Você ainda tem " + p.getVidas() + " vidas!");
+                    } else {
                         // Envia o retorno para os outros jogadores
-                        player.enviar.write( resultChuteMassas );
+                        player.enviar.write(resultChuteMassas);
                     }
-                    player.enviar.newLine( );
-                    player.enviar.flush( );
+                    player.enviar.newLine();
+                    player.enviar.flush();
                 }
-            } catch ( IOException e ) {
-                fechaTudo( socket, receber, enviar );
+            } catch (IOException e) {
+                fechaTudo(socket, receber, enviar);
             }
 
-        } else if ( frame.contains( "P | " ) ) {
-            System.out.println( "Tentativa de adivinhar a palavra..." );
-        } else if ( frame.contains( "D | " ) ) {
+        } else if (frame.contains("P | ")) {
+            //Jogador está pronto
+            System.out.println(p.username + " Está Pronto");
+
+            try {
+                p.enviar.write("P | Você Está Pronto, Aguarde os outros jogadores para começar");
+                p.enviar.newLine();
+                p.enviar.flush();
+            } catch (IOException ex) {
+                fechaTudo(socket, receber, enviar);
+            }
+
+        } else if (frame.contains("D | ")) {
             // D de dica
             try {
                 // verifica se o jogador ja solicitou a dica
-                if(p.dica){
-                    p.enviar.write( "D | Você ja recebeu a sua dica!"  );
-                }else {
+                if (p.dica) {
+                    p.enviar.write("D | Você ja recebeu a sua dica!");
+                } else {
                     // envia a dica e tira uma vida
                     p.dica = true;
                     p.vidas--;
-                    p.enviar.write( "D | " + jogo.dica() );
+                    p.enviar.write("D | " + jogo.dica());
                 }
-                p.enviar.newLine( );
-                p.enviar.flush( );
+                p.enviar.newLine();
+                p.enviar.flush();
                 jogaDnv = true; // permite jogar dnv
-            } catch ( IOException e ) {
-                fechaTudo( socket, receber, enviar );
+            } catch (IOException e) {
+                fechaTudo(socket, receber, enviar);
             }
         } else {
-            System.out.println( "Nenhuma das opcoes..." );
+            System.out.println("Nenhuma das opcoes...");
         }
     }
 
-    public void fechaTudo( Socket socket, BufferedReader receber, BufferedWriter enviar ) {
+    public void fechaTudo(Socket socket, BufferedReader receber, BufferedWriter enviar) {
         try {
-            if ( socket != null ) socket.close( );
-            if ( enviar != null ) enviar.close( );
-            if ( receber != null ) receber.close( );
-        } catch ( IOException e ) {
-            e.printStackTrace( );
+            if (socket != null) {
+                socket.close();
+            }
+            if (enviar != null) {
+                enviar.close();
+            }
+            if (receber != null) {
+                receber.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
 
     public String getUsername() {
         return username;

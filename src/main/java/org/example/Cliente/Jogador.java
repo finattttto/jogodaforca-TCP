@@ -37,9 +37,12 @@ public class Jogador {
         Scanner scan = new Scanner( System.in );
         System.out.println( "Digite seu nome de usuário: " );
         String username = scan.nextLine( );
-        Socket socket = new Socket( "192.168.19.22", 8080 );
+        System.out.println( "Digite o ip do Servidor: " );
+        String ip = scan.nextLine( );
+        Socket socket = new Socket( ip, 8080 );
         Jogador jogador = new Jogador( username, socket, false, 5 );
         cadastrar( username );
+        esperarSinalPronto();
         jogador.receberMsg( );
     }
 
@@ -52,6 +55,27 @@ public class Jogador {
             System.out.println( "erro ao cadastrar" );
         }
 
+    }
+    
+    public static void esperarSinalPronto(){
+                Scanner scan = new Scanner( System.in );
+        String strDigitada = "";
+                
+        //Aguarda até que o jogador insira o pronto
+         while(!strDigitada.contains("pronto")){
+             System.out.println( "Digite \"pronto\" quando estiver pronto para começar o jogo!: " );
+             strDigitada = scan.nextLine();
+         }
+         
+         //Quando a string conter "pronto" irá quebrar o loop  e chegar ao envio
+          try {
+            enviar.write( "P | pronto" );
+            enviar.newLine( );
+            enviar.flush( );
+        } catch ( IOException ex ) {
+            System.out.println( "erro ao cadastrar" );
+        }
+          
     }
 
     // Função pra enviar a mensagem
