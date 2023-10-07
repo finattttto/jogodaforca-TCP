@@ -60,7 +60,8 @@ public class JogoDaForca {
                 }
                 //O Progresso de adivinhacao contem o caracter _ em letras que nao foram adivinhadas caso o progresso de adivinhacao nao contenha nenhum _, mostra a vitoria do jogador
                 if ( !progressoAdivinhacao.toString( ).contains( "_" ) ) {
-                    retorno = " VENCEU!!! A palavra era: " + palavra;
+                    retorno = " VENCEU!!! A palavra era: :-" + palavra;
+
                 }else{
                     retorno = " Você acertou uma letra! ";
                 }
@@ -77,6 +78,23 @@ public class JogoDaForca {
             }
         } else { //Caso tenha inserido mais de uma letra ou uma palavra que não seja do tamanho correto, informa um erro
             retorno = "Digite uma letra, ou uma palavra com o tamanho correto!" ;
+        }
+
+        if(retorno.contains( "VENCEU" )){
+            String result = sorteador.geraPalavra( "facil" );
+            String[] partes = result.split( "-" );
+            palavra = partes[ 0 ];
+            System.out.println( "A palavra sorteada foi: " + palavra );
+            dica = partes[ 1 ];
+
+            //Adicionando a palavra sorteada a uma lista e completando a lista de adivinhação com ""
+            progressoAdivinhacao.clear();
+            for ( int i = 0; i < palavra.length( ); i++ ) {
+                progressoAdivinhacao.add( "_" );
+            }
+            letrasJaUsadas = "";
+
+            return "R | " + retorno;
         }
 
         StringBuilder palavraComLetrasAcertadas = new StringBuilder( );

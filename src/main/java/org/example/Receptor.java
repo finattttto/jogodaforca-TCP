@@ -14,7 +14,8 @@ public class Receptor implements Runnable {
     private String username;
     private int vidas;
     private Boolean dica;
-    private Boolean pronto;
+    private Boolean pronto = false;
+    private int pontuacao;
 
     public static ArrayList<Receptor> players = new ArrayList<>();
     public static JogoDaForca jogo = new JogoDaForca();
@@ -24,18 +25,55 @@ public class Receptor implements Runnable {
     @Override
     public void run() {
         int index = 0;
+        int indexProntos = 0;
         String msg;
         boolean jogoEmAndamento = false;
+        int nmrPlayers = 2;
+
         while (socket.isConnected()) {
-            for (Receptor j : players) {
-                //Testa se os players Estao prontos, caso algum não esteja, repete o teste 
-                if (!j.pronto) {
-                    break;
-                } else {
+
+//            if(nmrPlayers == 0){
+//                try {
+//                    players.get(0).enviar.write("QuantPlayer");
+//                    players.get(0).enviar.newLine();
+//                    players.get(0).enviar.flush();
+//                    String mensegem = players.get(0).receber.readLine();
+//                    nmrPlayers = Integer.parseInt(mensegem);
+//                } catch ( Exception ex ) {
+//                    fechaTudo( socket, receber, enviar );
+//                }
+//                continue;
+//            }
+//
+            if(players.size() < nmrPlayers || players.isEmpty( ) ){
+                continue;
+            }
+
+            if(!jogoEmAndamento){
+                for ( Receptor player : players ) {
+                    try {
+                        msg = player.receber.readLine( );
+                        if ( msg.contains( "pronto" ) ) {
+                            player.pronto = true;
+                        }
+                    } catch ( Exception ex ) {
+                        fechaTudo( socket, receber, enviar );
+                    }
+                }
+                for (Receptor j : players) {
+                    //Testa se os players Estao prontos, caso algum não esteja, repete o teste
+                    if (j.pronto) {
+                        jogoEmAndamento = true;
+                    }else{
+                        jogoEmAndamento = false;
+                    }
+                }
+
+                if(!jogoEmAndamento){
                     continue;
                 }
             }
-            jogoEmAndamento = true;
+
             try {
 
 //               try{
@@ -116,6 +154,9 @@ public class Receptor implements Runnable {
 
     public void verificador(String frame, Receptor p) {
         if (frame.contains("T | ")) {
+
+            boolean enviaPlacar = false;
+
             System.out.println("Tentativa do jogador...");
             String resultChute = jogo.chute(frame);
 
@@ -138,6 +179,28 @@ public class Receptor implements Runnable {
                 }
             }
 
+            if(resultChute.contains( "Você acertou" )){
+                p.pontuacao += 10;
+            }
+
+            String placar = "";
+            if(resultChute.contains( "VENCEU" )){
+                p.pontuacao += 25;
+                for(Receptor player : players){
+                    placar += player.username + ": "+player.pontuacao+" pontos;barraene";
+                }
+                try {
+                    for (Receptor player : players) {
+                        player.enviar.write("Placar | " + placar);
+                        player.enviar.newLine();
+                        player.enviar.flush();
+                    }
+                } catch (IOException e) {
+                    fechaTudo(socket, receber, enviar);
+                }
+                return;
+            }
+
             // Formata a resposta para os outros jogadores, fora aquele da vez
             String resultChuteMassas = ajustaRetorno(resultChute, p.username);
 
@@ -146,6 +209,7 @@ public class Receptor implements Runnable {
                 for (Receptor player : players) {
                     if (player.equals(p)) {
                         // Envia o retorno para o jogador da vez, junto com sua quantidade de vidas
+
                         player.enviar.write(resultChute + " | Você ainda tem " + p.getVidas() + " vidas!");
                     } else {
                         // Envia o retorno para os outros jogadores
@@ -157,6 +221,8 @@ public class Receptor implements Runnable {
             } catch (IOException e) {
                 fechaTudo(socket, receber, enviar);
             }
+
+
 
         } else if (frame.contains("P | ")) {
             //Jogador está pronto

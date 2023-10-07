@@ -14,6 +14,8 @@ public class Jogador {
     private Socket socket;
     private Boolean dica;
     private Integer vidas;
+    private boolean pronto;
+    private int pontuacao;
 
     public Boolean taNaHoraDeJogar = false;
 
@@ -25,6 +27,8 @@ public class Jogador {
             Jogador.username = username;
             this.dica = dica;
             this.vidas = vidas;
+            this.pronto = false;
+            this.pontuacao = 0;
         } catch ( Exception e ) {
             fechaTudo( socket, receber, enviar );
         }
@@ -121,6 +125,8 @@ public class Jogador {
                         msgDoChat = receber.readLine();
                         if(msgDoChat == null){
                             continue;
+                        }else if (msgDoChat.contains( "venceu" ) || msgDoChat.contains( "VENCEU" )){
+                            System.out.println(msgDoChat );
                         }else if(msgDoChat.contains( "ConectionVerify" )){
                             enviar.write( "Online" );
                             enviar.newLine( );
@@ -134,6 +140,7 @@ public class Jogador {
                             }
                         } else if (msgDoChat.contains( "R | " )) {
                             // Aqui é o retorno quando tentar um chute
+
                             String[] partes = msgDoChat.split("\\|");
                             String retorno = partes[1].trim();
                             String progressoAdivinhacao = partes[2].trim();
@@ -143,9 +150,6 @@ public class Jogador {
                             System.out.println(retorno);
                             
                             System.out.println( "\nProgresso na adivinhação: " );
-//                            for ( Object i : progressoAdivinhacao ) {
-//                                System.out.print( i + " " );
-//                            }
                             System.out.println(progressoAdivinhacao);
                             
                             System.out.println( "------------ Letras já usadas ---------------" );
@@ -167,11 +171,30 @@ public class Jogador {
 
                             System.out.println(progressoAdivinhacao);
 
-                            System.out.println( "------------ Letras já usadas ---------------" );
+                            System.out.println( "----------------- LETRAS JA USADAS --------------------" );
                             System.out.println( letrasJaUsadas );
                             System.out.println( "---------------------------------------------" );
 
-                        }else {
+
+                        } else if ( msgDoChat.contains( "QuantPlaye" ) ) {
+                            Scanner sc = new Scanner( System.in );
+                            sc.nextLine();
+                            System.out.println("Quantos pessoas irão jogar? 2 a 5" );
+                            int nmr = sc.nextInt( );
+                            if(nmr > 1 && nmr < 6){
+                                enviar.write( Integer.toString( nmr ) );
+                                enviar.newLine( );
+                                enviar.flush( );
+                            }
+                        } else if ( msgDoChat.contains( "Placar" ) ) {
+                            String[] listPlacar = msgDoChat.split( "\\|" );
+                            String placar = listPlacar[1].trim();
+                            System.out.println( "---------------- PLACAR ---------------------" );
+                            System.out.println( placar.replaceAll( "barraene", "\n" ) );
+                            System.out.println( "---------------------------------------------" );
+
+                            System.out.println( "\n\n----------------- COMEÇANDO NOVA RODADA  -------------------\n\n" );
+                        } else {
                             System.out.println(msgDoChat);
                             if (msgDoChat.contains(username)) {
                                 enviarMsg();
