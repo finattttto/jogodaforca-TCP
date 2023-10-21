@@ -132,13 +132,37 @@ public class Jogador {
                             enviar.newLine( );
                             enviar.flush( );
                         } else if ( msgDoChat.contains( "D | " ) ) {
+                            //Recebida a Dica
                             String[] dica = msgDoChat.split( "\\|" );
                             if ( dica[1].contains( "Você ja" ) ){
                                 System.out.println(dica[1]);
                             }else {
                                 System.out.println("A dica para a palavra é: "+dica[1]);
                             }
-                        } else if (msgDoChat.contains( "R | " )) {
+                        }else if(msgDoChat.contains("I | ")){
+                            //I de inicio
+                            //Referente a quando jogador escolhe a dificuldade do jogo
+                            try{
+                            String msg = msgDoChat.substring(5);
+                            System.out.println(msg);
+                            Scanner scan = new Scanner(System.in);
+                            String dificuldade = "";
+                            dificuldade= scan.next();
+                            while(!dificuldade.toLowerCase().contains("facil") && !dificuldade.toLowerCase().contains("medio") && !dificuldade.toLowerCase().contains("dificil")){
+                                System.out.println("Dificuldade Inválida, tente digitar novamente");
+                                dificuldade= scan.nextLine();
+                            }
+                            System.out.println("enviando dificuldade para servidor");
+                            
+                            enviar.write( "I | " + dificuldade);
+                            enviar.newLine( );
+                            enviar.flush( );
+                            }catch(IOException ex){
+                                System.out.println("exception " + ex);
+                            }
+                            
+                        }
+                        else if (msgDoChat.contains( "R | " )) {
                             // Aqui é o retorno quando tentar um chute
 
                             String[] partes = msgDoChat.split("\\|");

@@ -16,8 +16,8 @@ public class JogoDaForca {
 
     private static List<String> progressoAdivinhacao = new ArrayList<>( );
 
-    public JogoDaForca( ) {
-        String result = sorteador.geraPalavra( "facil" );
+    public JogoDaForca(String dificuldade) {
+        String result = sorteador.geraPalavra( dificuldade );
         String[] partes = result.split( "-" );
         palavra = partes[ 0 ];
         System.out.println( "A palavra sorteada foi: " + palavra );

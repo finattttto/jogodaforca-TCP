@@ -16,9 +16,10 @@ public class Receptor implements Runnable {
     private Boolean dica;
     private Boolean pronto = false;
     private int pontuacao;
+    private boolean iniciarNovoJogo = true;
 
     public static ArrayList<Receptor> players = new ArrayList<>();
-    public static JogoDaForca jogo = new JogoDaForca();
+    public static JogoDaForca jogo;
 
     private static Boolean jogaDnv = false;
 
@@ -45,50 +46,50 @@ public class Receptor implements Runnable {
 //                continue;
 //            }
 //
-            if(players.size() < nmrPlayers || players.isEmpty( ) ){
+            if (players.size() < nmrPlayers || players.isEmpty()) {
                 continue;
             }
 
-            if(!jogoEmAndamento){
-                for ( Receptor player : players ) {
+            if (!jogoEmAndamento) {
+                for (Receptor player : players) {
                     try {
-                        msg = player.receber.readLine( );
-                        if ( msg.contains( "pronto" ) ) {
+                        msg = player.receber.readLine();
+                        if (msg.contains("pronto")) {
                             player.pronto = true;
                         }
-                    } catch ( Exception ex ) {
-                        fechaTudo( socket, receber, enviar );
+                    } catch (Exception ex) {
+                        fechaTudo(socket, receber, enviar);
                     }
                 }
                 for (Receptor j : players) {
                     //Testa se os players Estao prontos, caso algum não esteja, repete o teste
                     if (j.pronto) {
                         jogoEmAndamento = true;
-                    }else{
+                    } else {
                         jogoEmAndamento = false;
                     }
                 }
 
-                if(!jogoEmAndamento){
+                if (!jogoEmAndamento) {
                     continue;
                 }
             }
 
             try {
 
-//               try{
-//                   players.get( index ).socket.setSoTimeout( 3000 );
-//                   players.get( index ).enviar.write( "ConectionVerify" );
-//                   players.get( index ).enviar.newLine( );
-//                   players.get( index ).enviar.flush( );
-//                   String resposta = players.get( index ).receber.readLine();
-//                   System.out.println( players.get( index ).username + resposta );
-//               } catch ( SocketTimeoutException ex ){
-//                   System.out.println(players.get( index ).username + " desconectou" );
-//                   players.remove( index );
-//                   index--;
-//                   continue;
-//               }
+                if (jogo == null || iniciarNovoJogo) {
+                    players.get(index).enviar.write("I | Escolha a dificuldade: "
+                            + "facil, "
+                            + "medio, "
+                            + "ou dificil ");
+                    players.get(index).enviar.newLine();
+                    players.get(index).enviar.flush();
+                    msg = players.get(index).receber.readLine();
+                    System.out.println("recebido dificuldade " + msg);
+                    verificador(msg, players.get(index));
+                    
+                }
+
                 players.get(index).enviar.write("Sua vez " + players.get(index).username);
                 players.get(index).enviar.newLine();
                 players.get(index).enviar.flush();
@@ -179,15 +180,15 @@ public class Receptor implements Runnable {
                 }
             }
 
-            if(resultChute.contains( "Você acertou" )){
+            if (resultChute.contains("Você acertou")) {
                 p.pontuacao += 10;
             }
 
             String placar = "";
-            if(resultChute.contains( "VENCEU" )){
+            if (resultChute.contains("VENCEU")) {
                 p.pontuacao += 25;
-                for(Receptor player : players){
-                    placar += player.username + ": "+player.pontuacao+" pontos;barraene";
+                for (Receptor player : players) {
+                    placar += player.username + ": " + player.pontuacao + " pontos;barraene";
                 }
                 try {
                     for (Receptor player : players) {
@@ -198,6 +199,7 @@ public class Receptor implements Runnable {
                 } catch (IOException e) {
                     fechaTudo(socket, receber, enviar);
                 }
+                iniciarNovoJogo = true;
                 return;
             }
 
@@ -221,8 +223,6 @@ public class Receptor implements Runnable {
             } catch (IOException e) {
                 fechaTudo(socket, receber, enviar);
             }
-
-
 
         } else if (frame.contains("P | ")) {
             //Jogador está pronto
@@ -254,6 +254,21 @@ public class Receptor implements Runnable {
             } catch (IOException e) {
                 fechaTudo(socket, receber, enviar);
             }
+        } else if (frame.contains("I | ")) {
+            //I para início
+            //Seleciona a dificuldade do jogo
+            
+            if (frame.toLowerCase().contains("facil")) {
+                jogo = new JogoDaForca("facil");
+                iniciarNovoJogo = false;
+            } else if (frame.toLowerCase().contains("medio")) {
+                jogo = new JogoDaForca("medio");
+                iniciarNovoJogo = false;
+            } else if (frame.toLowerCase().contains("dificil")) {
+                jogo = new JogoDaForca("dificil");
+                iniciarNovoJogo = false;
+            }
+            
         } else {
             System.out.println("Nenhuma das opcoes...");
         }
