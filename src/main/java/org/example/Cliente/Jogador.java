@@ -87,7 +87,7 @@ public class Jogador {
         try {
             Scanner scan = new Scanner( System.in );
             System.out.println( "\nEscolhe uma opção: \n" +
-                "1 - Chuter Letra\n" +
+                "1 - Chutar Letra\n" +
                 "2 - Dica\n" );
 
             String msg = "";
@@ -143,11 +143,10 @@ public class Jogador {
                             //I de inicio
                             //Referente a quando jogador escolhe a dificuldade do jogo
                             try{
-                            String msg = msgDoChat.substring(5);
+                            String msg = msgDoChat.substring(4);
                             System.out.println(msg);
                             Scanner scan = new Scanner(System.in);
-                            String dificuldade = "";
-                            dificuldade= scan.next();
+                            String dificuldade= scan.next();
                             while(!dificuldade.toLowerCase().contains("facil") && !dificuldade.toLowerCase().contains("medio") && !dificuldade.toLowerCase().contains("dificil")){
                                 System.out.println("Dificuldade Inválida, tente digitar novamente");
                                 dificuldade= scan.nextLine();
